@@ -83,3 +83,60 @@ Run the application and tests:
 
 - Educational final project focused on AI plus architectural discipline.
 - External provider integration tests may require active credentials.
+
+ # 🚀 Minha Evolução no Projeto
+
+## Melhoria implementada
+
+Como evolução do projeto base, implementei uma validação na classe `Transaction` para impedir a criação de transações com valor menor ou igual a zero.
+
+Antes dessa alteração, a aplicação aceitava qualquer valor informado durante a criação de uma transação. Com a validação implementada, valores inválidos passam a gerar uma exceção, garantindo maior consistência dos dados financeiros.
+
+Trecho implementado:
+
+```java
+if (amount <= 0) {
+    throw new IllegalArgumentException(
+        "O valor da transação deve ser maior que zero."
+    );
+}
+```
+
+## Como testar a melhoria
+
+## Como testar a melhoria
+
+A validação foi implementada na classe `Transaction` e será executada sempre que uma nova transação for criada.
+
+Ao informar um valor menor ou igual a zero, a aplicação lançará uma exceção impedindo o cadastro da transação.
+
+Para testar essa funcionalidade é necessário executar a aplicação com todas as dependências configuradas, incluindo Docker Desktop e a variável de ambiente `OPENAI_API_KEY`.
+
+Resultado esperado:
+
+- A aplicação lançará uma `IllegalArgumentException`;
+- A transação não será criada.
+
+## Tecnologias utilizadas
+
+- Java
+- Spring Boot
+- Spring AI
+- Gradle
+- Lombok
+- Docker
+- MySQL
+- OpenAI API
+
+## O que aprendi
+
+Durante este desafio pude aprender sobre:
+
+- Estrutura de projetos Spring Boot;
+- Organização em camadas (Domain, Application e Infrastructure);
+- Importação de projetos Gradle no Eclipse;
+- Configuração do Lombok;
+- Conceitos iniciais de Spring AI;
+- Importância da validação de regras de negócio na camada de domínio.
+
+Também compreendi que a execução completa do projeto depende da configuração do Docker Desktop e de uma chave da OpenAI (`OPENAI_API_KEY`), recursos necessários para o funcionamento do banco de dados e das funcionalidades de Inteligência Artificial. 
