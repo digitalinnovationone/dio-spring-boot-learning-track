@@ -1,20 +1,29 @@
 package dio.budgeting.domain;
 
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
+
 @Getter
-@AllArgsConstructor
 public class Transaction {
     private TransactionId id;
     private String description;
-    private long amount;
+    private BigDecimal amount;
     private Category category;
 
-    public Transaction(String description, long amount, Category category) {
-        this.id = new TransactionId();
+    public Transaction(String description, BigDecimal amount, Category category) {
+        this(new TransactionId(), description, amount, category);
+    }
+
+    public Transaction(TransactionId id, String description, BigDecimal amount, Category category) {
+        this.id = id;
         this.description = description;
-        this.amount = amount;
+        this.amount = normalize(amount);
         this.category = category;
+    }
+
+    private static BigDecimal normalize(BigDecimal amount) {
+        return amount.setScale(2, RoundingMode.HALF_UP);
     }
 }
