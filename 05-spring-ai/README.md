@@ -79,6 +79,40 @@ Run the application and tests:
 ./gradlew test
 ```
 
+## Documentação da API
+
+O projeto expõe documentação interativa via [springdoc-openapi](https://springdoc.org/) (OpenAPI 3 + Swagger UI).
+
+- Finalidade: visualizar e testar manualmente os três endpoints existentes (`POST /transactions`, `GET /transactions/{category}`, `POST /transactions/ai`) direto pelo navegador, sem precisar de um cliente HTTP externo.
+- Swagger UI: `http://localhost:8080/swagger-ui/index.html`
+- JSON OpenAPI: `http://localhost:8080/v3/api-docs`
+
+Para iniciar a aplicação (necessário para acessar o Swagger UI):
+
+```bash
+export OPENAI_API_KEY="your_api_key_here"
+./gradlew bootRun
+```
+
+Descrição resumida dos endpoints:
+
+- `POST /transactions` — cadastra uma transação a partir de um payload JSON (sem IA).
+- `GET /transactions/{category}` — lista transações de uma categoria (`GROCERIES`, `PHARMA`, `AUTO`).
+- `POST /transactions/ai` — recebe um áudio (`multipart/form-data`), transcreve, processa via ChatClient/Tool Calling e retorna a resposta como áudio MP3.
+
+**Atenção**:
+
+- O endpoint `/transactions/ai` exige a variável de ambiente `OPENAI_API_KEY` configurada no servidor.
+- Cada chamada a esse endpoint realiza chamadas reais à API da OpenAI (transcrição, chat e geração de voz) e **pode gerar custo**. Não dispare esse endpoint pelo Swagger UI apenas para "testar a interface".
+- Iniciar a aplicação (`bootRun`) sozinho **não** chama a OpenAI — as chamadas só ocorrem quando `/transactions/ai` é invocado.
+
+Exemplo de uso do Swagger UI:
+
+1. Acesse `http://localhost:8080/swagger-ui/index.html`.
+2. Expanda `POST /transactions`, clique em "Try it out" e envie o exemplo de payload já preenchido.
+3. Expanda `GET /transactions/{category}` e selecione uma categoria no seletor do enum.
+4. Para `POST /transactions/ai`, o Swagger UI exibe um seletor de arquivo — evite enviar um áudio real a menos que você aceite o custo de uma chamada real à OpenAI.
+
 ## Notes
 
 - Educational final project focused on AI plus architectural discipline.
