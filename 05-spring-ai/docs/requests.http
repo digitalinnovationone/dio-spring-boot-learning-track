@@ -1,0 +1,79 @@
+### Budget AI Assistant — requisições prontas para avaliação
+### Compatível com IntelliJ HTTP Client e a extensão "REST Client" do VS Code.
+### Suba a aplicação (./gradlew bootRun) e clique em "Send Request" acima de cada bloco.
+
+@host = http://localhost:8080
+
+### 1. Criar uma transação (valor em CENTAVOS: 1500 = R$ 15,00)
+POST {{host}}/transactions
+Content-Type: application/json
+
+{
+  "description": "Compras no mercado",
+  "category": "GROCERIES",
+  "amount": 1500
+}
+
+### 2. Criar outra transação (farmácia)
+POST {{host}}/transactions
+Content-Type: application/json
+
+{
+  "description": "Remédio",
+  "category": "PHARMA",
+  "amount": 5000
+}
+
+### 3. Criar transação de combustível
+POST {{host}}/transactions
+Content-Type: application/json
+
+{
+  "description": "Gasolina",
+  "category": "AUTO",
+  "amount": 20000
+}
+
+### 4. Validação: valor zero -> 400 Bad Request com mensagem clara
+POST {{host}}/transactions
+Content-Type: application/json
+
+{
+  "description": "Inválida",
+  "category": "GROCERIES",
+  "amount": 0
+}
+
+### 5. Validação: descrição vazia -> 400 Bad Request
+POST {{host}}/transactions
+Content-Type: application/json
+
+{
+  "description": "",
+  "category": "GROCERIES",
+  "amount": 1500
+}
+
+### 6. Listar transações de uma categoria
+GET {{host}}/transactions/GROCERIES
+
+### 7. (NOVO) Total gasto em uma categoria específica
+GET {{host}}/transactions/total/GROCERIES
+
+### 8. (NOVO) Resumo consolidado: total por categoria + total geral
+GET {{host}}/transactions/summary
+
+### 9. Categoria inválida no path -> 400 Bad Request
+GET {{host}}/transactions/total/INVALID
+
+### 10. Fluxo por voz (IA): envie um áudio e receba a resposta em MP3
+### Requer OPENAI_API_KEY configurada. Ajuste o caminho do arquivo de áudio.
+POST {{host}}/transactions/ai
+Content-Type: multipart/form-data; boundary=WebAppBoundary
+
+--WebAppBoundary
+Content-Disposition: form-data; name="file"; filename="recording-1.m4a"
+Content-Type: audio/m4a
+
+< ./src/test/resources/audio/recording-1.m4a
+--WebAppBoundary--

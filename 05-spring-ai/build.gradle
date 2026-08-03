@@ -29,11 +29,18 @@ dependencies {
     implementation 'org.springframework.ai:spring-ai-starter-model-openai'
 
     implementation 'org.springframework.boot:spring-boot-starter-web'
+    implementation 'org.springframework.boot:spring-boot-starter-validation'
 
     developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
 
     implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
     runtimeOnly 'com.mysql:mysql-connector-j'
+
+    // Banco em memória usado nos testes e no perfil "local" (via bootRun),
+    // permitindo subir a aplicação sem depender de um MySQL externo.
+    // Fica fora do jar de produção (developmentOnly + testRuntimeOnly).
+    testRuntimeOnly 'com.h2database:h2'
+    developmentOnly 'com.h2database:h2'
 }
 
 tasks.named('test') {

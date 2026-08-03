@@ -11,6 +11,17 @@ public record TransactionOutput(String id, String description, String category, 
                 transaction.getId().uuid().toString(),
                 transaction.getDescription(),
                 transaction.getCategory().name(),
-                BigDecimal.valueOf(transaction.getAmount()).setScale(2, RoundingMode.HALF_UP).doubleValue());
+                toReais(transaction.getAmount()));
+    }
+
+    /**
+     * Converte um valor em centavos (armazenamento) para reais (exibição).
+     * Ex.: 1000 centavos -> 10.00.
+     */
+    public static double toReais(long amountInCents) {
+        return BigDecimal.valueOf(amountInCents)
+                .movePointLeft(2)
+                .setScale(2, RoundingMode.HALF_UP)
+                .doubleValue();
     }
 }
