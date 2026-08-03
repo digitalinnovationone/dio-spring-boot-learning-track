@@ -1,10 +1,15 @@
 package dio.budgeting.infrastructure.http;
 
+import dio.budgeting.application.GetCategoryTotalUseCase;
 import dio.budgeting.application.ListTransactionsByCategoryUseCase;
 import dio.budgeting.application.PersistTransactionUseCase;
+import dio.budgeting.application.SummarizeExpensesUseCase;
 import dio.budgeting.domain.Category;
 import dio.budgeting.infrastructure.http.request.TransactionRequest;
+import dio.budgeting.infrastructure.http.response.CategoryTotalResponse;
+import dio.budgeting.infrastructure.http.response.ExpenseSummaryResponse;
 import dio.budgeting.infrastructure.http.response.TransactionResponse;
+import jakarta.validation.Valid;
 import org.springframework.ai.audio.transcription.TranscriptionModel;
 import org.springframework.ai.audio.tts.TextToSpeechModel;
 import org.springframework.ai.chat.client.ChatClient;
@@ -24,6 +29,8 @@ import java.util.List;
 public class TransactionController {
     private final PersistTransactionUseCase persistTransactionUseCase;
     private final ListTransactionsByCategoryUseCase listTransactionsByCategoryUseCase;
+    private final SummarizeExpensesUseCase summarizeExpensesUseCase;
+    private final GetCategoryTotalUseCase getCategoryTotalUseCase;
 
     private final TranscriptionModel transcriptionModel;
     private final ChatClient chatClient;
@@ -31,25 +38,40 @@ public class TransactionController {
 
     public TransactionController(PersistTransactionUseCase persistTransactionUseCase,
                                  ListTransactionsByCategoryUseCase listTransactionsByCategoryUseCase,
+                                 SummarizeExpensesUseCase summarizeExpensesUseCase,
+                                 GetCategoryTotalUseCase getCategoryTotalUseCase,
                                  TranscriptionModel transcriptionModel,
                                  @Value("classpath:prompts/system-message.st") Resource systemPrompt,
                                  ChatClient.Builder chatClientBuilder,
                                  TextToSpeechModel textToSpeechModel) throws IOException {
         this.persistTransactionUseCase = persistTransactionUseCase;
         this.listTransactionsByCategoryUseCase = listTransactionsByCategoryUseCase;
+        this.summarizeExpensesUseCase = summarizeExpensesUseCase;
+        this.getCategoryTotalUseCase = getCategoryTotalUseCase;
         this.transcriptionModel = transcriptionModel;
         this.chatClient = chatClientBuilder
                 .defaultSystem(systemPrompt.getContentAsString(Charset.defaultCharset()))
-                .defaultTools(persistTransactionUseCase, listTransactionsByCategoryUseCase)
+                .defaultTools(persistTransactionUseCase, listTransactionsByCategoryUseCase,
+                        summarizeExpensesUseCase, getCategoryTotalUseCase)
                 .build();
         this.textToSpeechModel = textToSpeechModel;
     }
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TransactionResponse createTransaction(@RequestBody TransactionRequest request) {
+    public TransactionResponse createTransaction(@Valid @RequestBody TransactionRequest request) {
         var transaction = persistTransactionUseCase.execute(request.toInput());
         return TransactionResponse.from(transaction);
+    }
+
+    @GetMapping("/summary")
+    public ExpenseSummaryResponse readSummary() {
+        return ExpenseSummaryResponse.from(summarizeExpensesUseCase.execute());
+    }
+
+    @GetMapping("/total/{category}")
+    public CategoryTotalResponse readCategoryTotal(@PathVariable Category category) {
+        return CategoryTotalResponse.from(getCategoryTotalUseCase.execute(category));
     }
 
     @GetMapping("/{category}")
