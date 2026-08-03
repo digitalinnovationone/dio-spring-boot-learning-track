@@ -1,1 +1,7 @@
+plugins {
+    // Permite ao Gradle baixar automaticamente o JDK exigido (Java 25) quando não
+    // houver uma instalação compatível na máquina, tornando o build reproduzível.
+    id 'org.gradle.toolchains.foojay-resolver-convention' version '1.0.0'
+}
+
 rootProject.name = 'budgeting'
