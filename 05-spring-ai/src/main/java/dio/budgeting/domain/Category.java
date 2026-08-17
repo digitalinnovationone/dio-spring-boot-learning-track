@@ -4,4 +4,8 @@ public enum Category {
     GROCERIES,
     PHARMA,
     AUTO,
+    LEISURE,
+    EDUCATION,
+    HEALTH,
+    HOUSING, 
 }

@@ -3,6 +3,7 @@ package dio.budgeting.infrastructure.persistence.entity;
 import dio.budgeting.domain.Category;
 import dio.budgeting.domain.Transaction;
 import dio.budgeting.domain.TransactionId;
+import dio.budgeting.domain.TransactionType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
 import jakarta.persistence.Enumerated;
@@ -26,12 +27,16 @@ public class TransactionEntity {
     @Enumerated(EnumType.STRING)
     private Category category;
 
+    @Enumerated(EnumType.STRING)
+    private TransactionType type;
+
     public static TransactionEntity from(Transaction transaction) {
         return new TransactionEntity(
                 transaction.getId().uuid(),
                 transaction.getDescription(),
                 transaction.getAmount(),
-                transaction.getCategory());
+                transaction.getCategory(),
+                transaction.getType());
     }
 
     public Transaction toDomain() {
@@ -39,7 +44,7 @@ public class TransactionEntity {
                 new TransactionId(this.id),
                 this.description,
                 this.amount,
-                this.category
-        );
+                this.category,
+                this.type);
     }
 }

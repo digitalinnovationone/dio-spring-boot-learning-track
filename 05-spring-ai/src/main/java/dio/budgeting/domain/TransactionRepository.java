@@ -6,4 +6,5 @@ public interface TransactionRepository {
     Transaction save(Transaction transaction);
 
     List<Transaction> findAllByCategory(Category category);
+    List<Transaction> findAll();
 }
