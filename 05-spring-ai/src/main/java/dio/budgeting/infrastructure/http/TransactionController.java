@@ -14,6 +14,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.*;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import dio.budgeting.domain.InvalidTransactionException;
 
 import java.io.IOException;
 import java.nio.charset.Charset;
@@ -43,6 +44,11 @@ public class TransactionController {
                 .defaultTools(persistTransactionUseCase, listTransactionsByCategoryUseCase)
                 .build();
         this.textToSpeechModel = textToSpeechModel;
+    }
+
+    @ExceptionHandler(InvalidTransactionException.class)
+    public ResponseEntity<String> handleInvalidTransaction(InvalidTransactionException ex) {
+        return ResponseEntity.status(400).body(ex.getMessage());
     }
 
     @PostMapping
