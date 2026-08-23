@@ -6,6 +6,57 @@ This final module applies Spring AI in a budgeting API while preserving the same
 
 The goal is to integrate AI capabilities without bypassing domain and use case boundaries.
 
+## My Improvement
+
+As part of the DIO Spring Boot + Spring AI challenge, I implemented a new feature that calculates the total amount spent in a specific transaction category.
+
+The feature was implemented through a new `TotalByCategoryUseCase`, which retrieves all transactions from a category and calculates their total amount.
+
+The functionality is available through the REST API:
+
+```http
+GET /transactions/{category}/total
+```
+
+Example:
+
+```http
+GET /transactions/GROCERIES/total
+```
+
+Response:
+
+```json
+{
+  "category": "GROCERIES",
+  "total": 80
+}
+```
+### Tests Performed
+
+The following flows were successfully tested:
+
+- Creating transactions with `POST /transactions`.
+- Listing transactions by category with `GET /transactions/{category}`.
+- Calculating the total by category with `GET /transactions/{category}/total`.
+- Two `GROCERIES` transactions with values `50` and `30` correctly returned a total of `80`.
+- The `/transactions/ai` endpoint was tested using an audio request.
+- The Spring AI Tool Calling flow successfully used the new total-by-category functionality.
+- Gradle automated tests were executed successfully with `BUILD SUCCESSFUL`.
+
+### Technologies Used
+
+- Java 25
+- Spring Boot
+- Spring AI
+- Spring Data JPA
+- MySQL
+- Docker
+- Gradle
+- OpenAI API
+- Postman
+- Git and GitHub
+
 ## Code Context
 
 The project processes voice commands to create and query financial transactions.
