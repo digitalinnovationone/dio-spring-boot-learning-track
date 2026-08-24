@@ -3,6 +3,7 @@ package dio.budgeting.infrastructure.persistence.repository;
 import dio.budgeting.domain.Category;
 import dio.budgeting.domain.Transaction;
 import dio.budgeting.domain.TransactionRepository;
+import dio.budgeting.domain.UserId;
 import dio.budgeting.infrastructure.persistence.entity.TransactionEntity;
 import org.springframework.stereotype.Repository;
 
@@ -23,8 +24,16 @@ public class JpaTransactionRepository implements TransactionRepository {
     }
 
     @Override
-    public List<Transaction> findAllByCategory(Category category) {
-        return transactionEntityRepository.findAllByCategory(category)
+    public List<Transaction> findAllByUserIdAndCategory(UserId userId, Category category) {
+        return transactionEntityRepository.findAllByUserIdAndCategory(userId.uuid(), category)
+                .stream()
+                .map(TransactionEntity::toDomain)
+                .toList();
+    }
+
+    @Override
+    public List<Transaction> findAllByUserId(UserId userId) {
+        return transactionEntityRepository.findAllByUserId(userId.uuid())
                 .stream()
                 .map(TransactionEntity::toDomain)
                 .toList();
