@@ -1,0 +1,20 @@
+services:
+  database:
+    image: mysql:9.6
+    environment:
+      MYSQL_DATABASE: transaction
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_USER: app
+      MYSQL_PASSWORD: app
+    ports:
+      - "3307:3306"
+    volumes:
+      - transaction_data:/var/lib/mysql
+    healthcheck:
+      test: [ "CMD", "mysqladmin", "ping", "-h", "localhost", "-uapp", "-papp" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+volumes:
+  transaction_data:
