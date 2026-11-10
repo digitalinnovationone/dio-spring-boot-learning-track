@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.Resource;
 import org.springframework.http.*;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -47,7 +48,7 @@ public class TransactionController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public TransactionResponse createTransaction(@RequestBody TransactionRequest request) {
+    public TransactionResponse createTransaction(@Valid @RequestBody TransactionRequest request) {
         var transaction = persistTransactionUseCase.execute(request.toInput());
         return TransactionResponse.from(transaction);
     }
