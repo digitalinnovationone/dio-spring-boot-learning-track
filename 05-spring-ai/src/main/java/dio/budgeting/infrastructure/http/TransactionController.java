@@ -1,22 +1,19 @@
 package dio.budgeting.infrastructure.http;
 
+import dio.budgeting.application.GetSpendingSummaryUseCase;
+import dio.budgeting.application.GetTotalByCategoryUseCase;
 import dio.budgeting.application.ListTransactionsByCategoryUseCase;
 import dio.budgeting.application.PersistTransactionUseCase;
+import dio.budgeting.application.output.CategoryTotalOutput;
+import dio.budgeting.application.output.SpendingSummaryOutput;
 import dio.budgeting.domain.Category;
 import dio.budgeting.infrastructure.http.request.TransactionRequest;
 import dio.budgeting.infrastructure.http.response.TransactionResponse;
-import org.springframework.ai.audio.transcription.TranscriptionModel;
-import org.springframework.ai.audio.tts.TextToSpeechModel;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.ByteArrayResource;
-import org.springframework.core.io.Resource;
-import org.springframework.http.*;
+import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
 
-import java.io.IOException;
-import java.nio.charset.Charset;
+import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -24,25 +21,17 @@ import java.util.List;
 public class TransactionController {
     private final PersistTransactionUseCase persistTransactionUseCase;
     private final ListTransactionsByCategoryUseCase listTransactionsByCategoryUseCase;
-
-    private final TranscriptionModel transcriptionModel;
-    private final ChatClient chatClient;
-    private final TextToSpeechModel textToSpeechModel;
+    private final GetTotalByCategoryUseCase getTotalByCategoryUseCase;
+    private final GetSpendingSummaryUseCase getSpendingSummaryUseCase;
 
     public TransactionController(PersistTransactionUseCase persistTransactionUseCase,
                                  ListTransactionsByCategoryUseCase listTransactionsByCategoryUseCase,
-                                 TranscriptionModel transcriptionModel,
-                                 @Value("classpath:prompts/system-message.st") Resource systemPrompt,
-                                 ChatClient.Builder chatClientBuilder,
-                                 TextToSpeechModel textToSpeechModel) throws IOException {
+                                 GetTotalByCategoryUseCase getTotalByCategoryUseCase,
+                                 GetSpendingSummaryUseCase getSpendingSummaryUseCase) {
         this.persistTransactionUseCase = persistTransactionUseCase;
         this.listTransactionsByCategoryUseCase = listTransactionsByCategoryUseCase;
-        this.transcriptionModel = transcriptionModel;
-        this.chatClient = chatClientBuilder
-                .defaultSystem(systemPrompt.getContentAsString(Charset.defaultCharset()))
-                .defaultTools(persistTransactionUseCase, listTransactionsByCategoryUseCase)
-                .build();
-        this.textToSpeechModel = textToSpeechModel;
+        this.getTotalByCategoryUseCase = getTotalByCategoryUseCase;
+        this.getSpendingSummaryUseCase = getSpendingSummaryUseCase;
     }
 
     @PostMapping
@@ -57,20 +46,15 @@ public class TransactionController {
         return listTransactionsByCategoryUseCase.execute(category).stream().map(TransactionResponse::from).toList();
     }
 
-    @PostMapping(value = "/ai", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = "audio/mp3")
-    ResponseEntity<Resource> transcribe(@RequestParam("file") MultipartFile file) {
-        var userMessage = transcriptionModel.transcribe(file.getResource());
-        var result = chatClient.prompt().user(userMessage).call().content();
+    @GetMapping("/{category}/total")
+    public CategoryTotalOutput readTotal(@PathVariable Category category) {
+        return getTotalByCategoryUseCase.execute(category);
+    }
 
-        byte[] audio = textToSpeechModel.call(result);
-        var resource = new ByteArrayResource(audio);
-
-        return ResponseEntity.ok()
-                .header(HttpHeaders.CONTENT_DISPOSITION,
-                        ContentDisposition.attachment()
-                                .filename("audio.mp3")
-                                .build()
-                                .toString())
-                .body(resource);
+    @GetMapping("/summary")
+    public SpendingSummaryOutput readSummary(
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate start,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate end) {
+        return getSpendingSummaryUseCase.execute(start, end);
     }
 }
